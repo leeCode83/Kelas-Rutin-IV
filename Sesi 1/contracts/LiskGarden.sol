@@ -3,9 +3,14 @@ pragma solidity 0.8.30;
 
 contract LiskGarden {
     // 1. Data Types
-    enum GrowthStage { SEED, SPROUT, GROWING, BLOOMING }
+    enum GrowthStage {
+        SEED,
+        SPROUT,
+        GROWING,
+        BLOOMING
+    }
 
-    struct Plant { 
+    struct Plant {
         uint256 id;
         address owner;
         GrowthStage stage;
@@ -14,7 +19,7 @@ contract LiskGarden {
         uint8 waterLevel;
         bool exists;
         bool isDead;
-     }
+    }
 
     // 2. State
     mapping(uint256 => Plant) public plants;
@@ -32,17 +37,21 @@ contract LiskGarden {
     // 4. Events
     event PlantSeeded(address indexed owner, uint256 indexed plantId);
     event PlantWatered(uint256 indexed plantId, uint8 newWaterLevel);
-    event PlantHarvested(uint256 indexed plantId, address indexed owner, uint256 reward);
+    event PlantHarvested(
+        uint256 indexed plantId,
+        address indexed owner,
+        uint256 reward
+    );
     event StageAdvanced(uint256 indexed plantId, GrowthStage newStage);
     event PlantDied(uint256 indexed plantId);
 
     // 5. Constructor
-    constructor() { 
+    constructor() {
         owner = msg.sender;
     }
 
     // 6. Main Functions (8 functions)
-    function plantSeed() external payable returns (uint256){ 
+    function plantSeed() external payable returns (uint256) {
         require(msg.value >= PLANT_PRICE, "Incorrect amount sent");
         plantCounter++;
         plants[plantCounter] = Plant({
@@ -61,17 +70,17 @@ contract LiskGarden {
         return plantCounter;
     }
 
-    function calculateWaterLevel(uint256 _plantId) public returns(uint8) { 
+    function calculateWaterLevel(uint256 _plantId) public returns (uint8) {
         require(_plantId <= plantCounter, "ID tidak valid");
         Plant memory plant = plants[_plantId];
-        if(!plant.exists || plant.isDead) return 0;
+        if (!plant.exists || plant.isDead) return 0;
         uint256 time = block.timestamp - plant.lastWatered;
         uint256 depletionInterval = time / WATER_DEPLETION_TIME;
         uint256 waterLost = depletionInterval * WATER_DEPLETION_RATE;
 
         updateWaterLevel(_plantId, uint8(plant.waterLevel - waterLost));
 
-        if(waterLost > plant.waterLevel){ 
+        if (waterLost > plant.waterLevel) {
             emit PlantDied(_plantId);
             return 0;
         }
@@ -95,11 +104,11 @@ contract LiskGarden {
     function updatePlantStage(uint256 _plantId) public {
         Plant storage plant = plants[_plantId];
         uint256 timeElapsed = block.timestamp - plant.plantedDate;
-        if(timeElapsed >= 3 minutes){
+        if (timeElapsed >= block.timestamp + 3 minutes) {
             plant.stage = GrowthStage.BLOOMING;
-        }else if(timeElapsed >= 2 minutes){
+        } else if (timeElapsed >= block.timestamp + 2 minutes) {
             plant.stage = GrowthStage.GROWING;
-        }else if(timeElapsed >= 1 minutes){
+        } else if (timeElapsed >= block.timestamp + 1 minutes) {
             plant.stage = GrowthStage.SPROUT;
         }
     }
@@ -109,22 +118,25 @@ contract LiskGarden {
         require(msg.sender == plant.owner);
         require(plant.exists, "Plant not exist");
         require(!plant.isDead, "Plant is dead");
-        require(plant.stage == GrowthStage.BLOOMING, "Plant not ready to harvest");
-        
+        require(
+            plant.stage == GrowthStage.BLOOMING,
+            "Plant not ready to harvest"
+        );
+
         plant.exists = false;
         (bool success, ) = msg.sender.call{value: HARVEST_REWARD}("");
-        
+
         require(success, "Transaksi gagal");
     }
 
     // // 7. Helper Functions (3 functions)
-    function getPlant(uint256 _plantId) external view returns(Plant memory){
+    function getPlant(uint256 _plantId) external view returns (Plant memory) {
         require(_plantId <= plantCounter, "ID tidak valid");
         Plant memory plant = plants[_plantId];
         return plant;
     }
 
-    function getUserPlants() external view returns(uint256[] memory){
+    function getUserPlants() external view returns (uint256[] memory) {
         require(msg.sender != address(0), "Empty address");
         return userPlants[msg.sender];
     }
