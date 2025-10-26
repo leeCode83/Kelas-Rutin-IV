@@ -1,0 +1,1 @@
+Saya belajar banyak dari sesi 1 pada Kelas Rutin IV. Saya sudah mengerti basic dari coding Smart Contract walaupun kesulitan dalam memahami requirement saat coding untuk smart contract yang LiskGarden yang level intermediate. Tapi saya akhirnya kelar
