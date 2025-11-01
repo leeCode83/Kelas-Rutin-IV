@@ -1,8 +1,10 @@
-import { ethers } from "hardhat";
+import { network } from "hardhat";
 
 async function main() {
+    const { ethers } = await network.connect();
+
     // Replace with your deployed contract address
-    const CONTRACT_ADDRESS = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb4";
+    const CONTRACT_ADDRESS = "0x91823ddc0B91618c8721Cacfa1Ec6c6e023F53E6";
 
     // Get contract instance
     const LiskGarden = await ethers.getContractAt("LiskGarden", CONTRACT_ADDRESS);
