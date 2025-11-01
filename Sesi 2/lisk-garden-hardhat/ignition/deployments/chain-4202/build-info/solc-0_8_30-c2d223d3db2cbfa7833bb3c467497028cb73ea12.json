@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_30-c2d223d3db2cbfa7833bb3c467497028cb73ea12",
+  "solcVersion": "0.8.30",
+  "solcLongVersion": "0.8.30+commit.73712a01",
+  "userSourceNameMap": {
+    "contracts/BasicToken.sol": "project/contracts/BasicToken.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "prague",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/BasicToken.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.30;\r\n\r\n/**\r\n * @title BasicToken\r\n * @dev Token paling sederhana - hanya transfer\r\n */\r\ncontract BasicToken {\r\n\r\n    // ============ STATE VARIABLES ============\r\n\r\n    /**\r\n     * @dev Mapping dari address ke balance\r\n     * Contoh: balances[0x123...] = 1000\r\n     */\r\n    mapping(address => uint256) public balances;\r\n\r\n    /**\r\n     * @dev Total supply token\r\n     */\r\n    uint256 public totalSupply;\r\n\r\n    // ============ EVENTS ============\r\n\r\n    /**\r\n     * @dev Event ketika transfer terjadi\r\n     */\r\n    event Transfer(address indexed from, address indexed to, uint256 value);\r\n\r\n    // ============ CONSTRUCTOR ============\r\n\r\n    /**\r\n     * @dev Mint initial supply ke creator\r\n     */\r\n    constructor(uint256 _initialSupply) {\r\n        // Semua token ke creator contract\r\n        balances[msg.sender] = _initialSupply;\r\n        totalSupply = _initialSupply;\r\n\r\n        // Emit transfer dari address(0) = minting\r\n        emit Transfer(address(0), msg.sender, _initialSupply);\r\n    }\r\n\r\n    // ============ PUBLIC FUNCTIONS ============\r\n\r\n    /**\r\n     * @dev Transfer token ke address lain\r\n     * @param _to Recipient address\r\n     * @param _value Jumlah token\r\n     * @return success True jika berhasil\r\n     */\r\n    function transfer(address _to, uint256 _value) public returns (bool success) {\r\n        // 1. Validasi: punya cukup balance?\r\n        require(balances[msg.sender] >= _value, \"Insufficient balance\");\r\n\r\n        // 2. Validasi: recipient valid?\r\n        require(_to != address(0), \"Cannot transfer to zero address\");\r\n\r\n        // 3. Update balances\r\n        balances[msg.sender] -= _value;  // Kurangi sender\r\n        balances[_to] += _value;          // Tambah recipient\r\n\r\n        // 4. Emit event\r\n        emit Transfer(msg.sender, _to, _value);\r\n\r\n        // 5. Return success\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * @dev Get balance of address\r\n     * @param _owner Address to check\r\n     * @return balance Token balance\r\n     */\r\n    function balanceOf(address _owner) public view returns (uint256 balance) {\r\n        return balances[_owner];\r\n    }\r\n}"
+      }
+    }
+  }
+}
